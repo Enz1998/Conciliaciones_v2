@@ -1,4 +1,5 @@
-import { ERPParser, RawMayorMovement, NormalizedMovement } from '../../shared/types';
+import * as XLSX from 'xlsx';
+import { ERPParser, RawMayorMovement, NormalizedMovement, ParseResult } from '../../shared/types';
 import { parseMontoERP, parseFechaDMYGuion, normalizarContraparte, clasificarMovimiento, determinarTipo } from '../../shared/utils';
 import { v4 as uuid } from 'uuid';
 
@@ -6,21 +7,108 @@ export class MayorParser implements ERPParser {
   readonly erpName = 'Libro Mayor';
 
   /**
+   * Parsea el XLSX del Libro Mayor (para MercadoPago y futuros bancos con Mayor en Excel).
+   * Las columnas son las mismas que el CSV: Fecha | Documento | Cuenta | Debe | Haber | Saldo | Descripción | Organización | Centro de Costos
+   */
+  parseXLSX(buffer: any): ParseResult<RawMayorMovement> {
+    const workbook = XLSX.read(buffer, { type: 'buffer', cellDates: true });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const rows: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: null });
+
+    if (rows.length < 2) return { movimientos: [] };
+
+    // Validación estructural
+    const headers = rows[0] || [];
+    const headerString = headers.join(' ').toLowerCase();
+    if (!headerString.includes('documento') || !headerString.includes('cuenta') || !headerString.includes('debe')) {
+      throw new Error('El archivo no parece ser un Libro Mayor válido. Verificá que tenga el formato correcto.');
+    }
+
+    const result: RawMayorMovement[] = [];
+    let saldoInicial: number | undefined;
+
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i];
+      if (!row || row.every((c: any) => c === null || c === undefined || c === '')) continue;
+
+      const fechaRaw = row[0];
+      const documento = String(row[1] || '').trim();
+      const saldoRaw = row[5];
+
+      // Extraer saldo inicial y saltar
+      if (documento === 'Saldo Inicial') {
+        if (saldoRaw !== null && saldoRaw !== undefined) {
+          saldoInicial = typeof saldoRaw === 'number' ? saldoRaw : parseMontoERP(String(saldoRaw));
+        }
+        continue;
+      }
+      if (documento === '') continue;
+
+      // La fecha puede venir como Date object desde XLSX
+      let fechaStr: string;
+      if (fechaRaw instanceof Date) {
+        const y = fechaRaw.getFullYear();
+        const m = String(fechaRaw.getMonth() + 1).padStart(2, '0');
+        const d = String(fechaRaw.getDate()).padStart(2, '0');
+        fechaStr = `${d}-${m}-${y}`; // formato DD-MM-YYYY que parseFechaDMYGuion espera
+      } else {
+        fechaStr = String(fechaRaw || '').trim();
+      }
+
+      // Montos vienen como number en XLSX
+      const debeRaw = row[3];
+      const haberRaw = row[4];
+
+      result.push({
+        FECHA: fechaStr,
+        DOCUMENTO: documento,
+        ORGANIZACION: String(row[7] || '').trim(),
+        CENTRODECOSTO: String(row[8] || '').trim(),
+        CUENTA: String(row[2] || '').trim(),
+        DESCRIPCION: String(row[6] || '').trim(),
+        DEBEMONPRINCIPAL: debeRaw !== null && debeRaw !== undefined ? String(debeRaw) : '',
+        HABERMONPRINCIPAL: haberRaw !== null && haberRaw !== undefined ? String(haberRaw) : '',
+        SALDOMONPRINCIPAL: saldoRaw !== null && saldoRaw !== undefined ? String(saldoRaw) : '',
+      });
+    }
+
+    let saldoFinal: number | undefined;
+    if (result.length > 0) {
+      const last = result[result.length - 1];
+      if (last.SALDOMONPRINCIPAL) {
+        saldoFinal = parseMontoERP(last.SALDOMONPRINCIPAL);
+      }
+    }
+
+    return { movimientos: result, saldoInicial, saldoFinal };
+  }
+
+  /**
    * Parsea el CSV del Libro Mayor.
    * Delimitador: ; | Columnas: FECHA;DOCUMENTO;ORGANIZACION;...;DEBEMONPRINCIPAL;HABERMONPRINCIPAL;SALDOMONPRINCIPAL
    */
-  parseCSV(content: string): RawMayorMovement[] {
+  parseCSV(content: string): ParseResult<RawMayorMovement> {
     const lines = content.trim().split('\n');
-    if (lines.length < 2) return [];
+    if (lines.length < 2) return { movimientos: [] };
+
+    const headers = lines[0].toLowerCase();
+    if (!headers.includes('documento') || !headers.includes('organizacion') || !headers.includes('debemonprincipal')) {
+      throw new Error('El archivo no parece ser un Libro Mayor válido en formato CSV.');
+    }
 
     const result: RawMayorMovement[] = [];
+    let saldoInicial: number | undefined;
 
     for (let i = 1; i < lines.length; i++) {
       const values = this.parseLine(lines[i]);
       if (values.length < 9) continue;
 
-      // Saltar el saldo inicial
-      if (values[1] === 'Saldo Inicial') continue;
+      // Extraer y saltar el saldo inicial
+      if (values[1] === 'Saldo Inicial') {
+        if (values[8]) saldoInicial = parseMontoERP(values[8]);
+        continue;
+      }
 
       result.push({
         FECHA: values[0] || '',
@@ -35,7 +123,15 @@ export class MayorParser implements ERPParser {
       });
     }
 
-    return result;
+    let saldoFinal: number | undefined;
+    if (result.length > 0) {
+      const last = result[result.length - 1];
+      if (last.SALDOMONPRINCIPAL) {
+        saldoFinal = parseMontoERP(last.SALDOMONPRINCIPAL);
+      }
+    }
+
+    return { movimientos: result, saldoInicial, saldoFinal };
   }
 
   /**

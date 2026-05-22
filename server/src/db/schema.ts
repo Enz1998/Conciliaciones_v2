@@ -4,6 +4,7 @@ import { pgTable, uuid, varchar, decimal, date, timestamp, jsonb, index } from '
 export const conciliaciones = pgTable('conciliaciones', {
   id: uuid('id').defaultRandom().primaryKey(),
   nombre: varchar('nombre', { length: 255 }).notNull(),
+  banco: varchar('banco', { length: 50 }).notNull().default('galicia'),
   extracto_filename: varchar('extracto_filename', { length: 255 }),
   mayor_filename: varchar('mayor_filename', { length: 255 }),
   extracto_original: jsonb('extracto_original'),

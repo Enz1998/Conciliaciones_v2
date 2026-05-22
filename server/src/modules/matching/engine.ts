@@ -1,24 +1,11 @@
-import { NormalizedMovement, MatchResult } from '../../shared/types';
-import { ExactMatchStrategy } from './strategies/exact-match';
-import { TaxAssociationStrategy } from './strategies/tax-association';
-import { MonthEndMatchStrategy } from './strategies/month-end-match';
-import { GroupedMatchStrategy } from './strategies/grouped-match';
+import { NormalizedMovement, MatchResult, MatchStrategy } from '../../shared/types';
 
 /**
  * Motor de matcheo que ejecuta las estrategias en orden.
  *
- * Orden de ejecución:
- * 1. ExactMatch — matches 1:1 por monto exacto + fecha + nombre
- * 2. TaxAssociation — asocia impuestos a créditos padre
- * 3. GroupedMatch — sugiere agrupaciones N:1 o 1:N
+ * El pipeline de estrategias a usar ahora es inyectado por el BankParser.
  */
 export class MatchingEngine {
-  private strategies = [
-    new ExactMatchStrategy(),
-    new TaxAssociationStrategy(),
-    new MonthEndMatchStrategy(),
-    new GroupedMatchStrategy(),
-  ];
 
   /**
    * Ejecuta todas las estrategias sobre los movimientos.
@@ -27,7 +14,8 @@ export class MatchingEngine {
    */
   execute(
     extractoMovs: NormalizedMovement[],
-    mayorMovs: NormalizedMovement[]
+    mayorMovs: NormalizedMovement[],
+    strategies: MatchStrategy[]
   ): { matches: MatchResult[]; extractoMovs: NormalizedMovement[]; mayorMovs: NormalizedMovement[] } {
     // Copias para trabajar
     const extMovs = extractoMovs.map((m) => ({ ...m }));
@@ -35,7 +23,7 @@ export class MatchingEngine {
 
     const allMatches: MatchResult[] = [];
 
-    for (const strategy of this.strategies) {
+    for (const strategy of strategies) {
       const results = strategy.execute(extMovs, mayMovs);
       allMatches.push(...results);
 

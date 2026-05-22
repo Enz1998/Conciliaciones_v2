@@ -3,13 +3,24 @@ import multer from 'multer';
 import { db, schema } from '../../db';
 import { eq } from 'drizzle-orm';
 import { conciliacionService } from './service';
+import { bankParsers } from '../banks/registry';
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
 /**
+ * GET /api/conciliaciones/banks
+ * Obtiene los bancos disponibles.
+ */
+router.get('/banks', (_req: Request, res: Response) => {
+  const banksMetadata = Array.from(bankParsers.values()).map(parser => parser.metadata);
+  res.json(banksMetadata);
+});
+
+/**
  * POST /api/conciliaciones/upload
  * Sube extracto bancario + libro mayor y crea una conciliación.
+ * Soporta CSV (Galicia) y XLSX (MercadoPago).
  */
 router.post('/upload', upload.fields([
   { name: 'extracto', maxCount: 1 },
@@ -25,8 +36,9 @@ router.post('/upload', upload.fields([
       return res.status(400).json({ error: 'Se requieren ambos archivos: extracto y mayor' });
     }
 
-    const extractoContent = extractoFile.buffer.toString('utf-8');
-    const mayorContent = mayorFile.buffer.toString('utf-8');
+    // Detectar formato por extensión del archivo
+    const extractoFormat = extractoFile.originalname.toLowerCase().endsWith('.xlsx') ? 'xlsx' : 'csv';
+    const mayorFormat = mayorFile.originalname.toLowerCase().endsWith('.xlsx') ? 'xlsx' : 'csv';
 
     // Extraer saldos
     const s_ini_ext = req.body.saldo_inicial_extracto ? String(req.body.saldo_inicial_extracto) : null;
@@ -34,24 +46,27 @@ router.post('/upload', upload.fields([
     const s_ini_may = req.body.saldo_inicial_mayor ? String(req.body.saldo_inicial_mayor) : null;
     const s_fin_may = req.body.saldo_final_mayor ? String(req.body.saldo_final_mayor) : null;
 
-    // Crear conciliación
+    // Crear conciliación (incluye campo banco)
     const [conciliacion] = await db.insert(schema.conciliaciones).values({
       nombre: req.body.nombre || `Conciliación ${new Date().toISOString().slice(0, 10)}`,
       extracto_filename: extractoFile.originalname,
       mayor_filename: mayorFile.originalname,
       estado: 'EN_PROGRESO',
+      banco: bankName,
       saldo_inicial_extracto: s_ini_ext,
       saldo_final_extracto: s_fin_ext,
       saldo_inicial_mayor: s_ini_may,
       saldo_final_mayor: s_fin_may,
     }).returning();
 
-    // Procesar
+    // Procesar pasando los buffers directamente
     const result = await conciliacionService.procesar(
       conciliacion.id,
-      extractoContent,
-      mayorContent,
-      bankName
+      extractoFile.buffer,
+      mayorFile.buffer,
+      bankName,
+      extractoFormat,
+      mayorFormat
     );
 
     res.json({
@@ -60,6 +75,10 @@ router.post('/upload', upload.fields([
     });
   } catch (error: any) {
     console.error('Error en upload:', error);
+    // Errores de validación de parser
+    if (error.message && error.message.includes('válido')) {
+      return res.status(400).json({ error: error.message });
+    }
     res.status(500).json({ error: error.message });
   }
 });

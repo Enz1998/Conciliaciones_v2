@@ -61,6 +61,23 @@ export function parseFechaDMYGuion(valor: string): string {
 }
 
 /**
+ * Parsea una fecha/datetime ISO 8601 a YYYY-MM-DD.
+ * Ej: "2026-04-22T10:09:05Z" → "2026-04-22"
+ * Tambien acepta un objeto Date (que devuelve XLSX).
+ */
+export function parseFechaISO(valor: string | Date): string {
+  if (valor instanceof Date) {
+    // xlsx puede devolver un objeto Date directamente
+    const y = valor.getUTCFullYear();
+    const m = String(valor.getUTCMonth() + 1).padStart(2, '0');
+    const d = String(valor.getUTCDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+  // Tomar solo la parte de la fecha del string ISO
+  return String(valor).substring(0, 10);
+}
+
+/**
  * Clasifica un movimiento según su descripción y concepto.
  */
 export function clasificarMovimiento(
@@ -109,6 +126,47 @@ export function clasificarMovimiento(
   // Patrones adicionales para entries del ERP (asientos manuales, gastos bancarios)
   if (/GASTOS\s*BANCARIOS|CARGOS\s*BANCARIOS/i.test(d)) return 'COMISION';
   if (/RETENCION|PERCEPCION/i.test(d)) return 'IMPUESTO';
+
+  return 'OTRO';
+}
+
+/**
+ * Clasifica un movimiento de MercadoPago según su Tipo de Operación.
+ * Más preciso que clasificarMovimiento() porque usa el tipo explícito de MP.
+ */
+export function clasificarMovimientoMP(tipoOperacion: string): MovementCategory {
+  const t = tipoOperacion.toLowerCase().trim();
+
+  // Cobranzas / ingresos
+  if (t === 'cobro') return 'COBRANZA';
+  if (t === 'ingreso de dinero') return 'COBRANZA';
+  if (t === 'dinero recibido') return 'COBRANZA';
+  if (t === 'pago con descuento recibido') return 'COBRANZA';
+
+  // Rendimiento de fondos (se agrupa mensualmente)
+  if (t === 'rendimiento positivo de la inversión') return 'INTERES';
+
+  // Impuestos y retenciones
+  if (t.startsWith('retención') || t.startsWith('retencion')) return 'IMPUESTO';
+  if (t.startsWith('impuesto')) return 'IMPUESTO';
+  if (t.startsWith('anulación de retención') || t.startsWith('anulacion de retencion')) return 'IMPUESTO';
+  if (t.startsWith('anulación de impuesto') || t.startsWith('anulacion de impuesto')) return 'IMPUESTO';
+
+  // Comisiones de MercadoPago
+  if (t === 'costo de mercado pago') return 'COMISION';
+  if (t === 'anulación de costo de mercado pago' || t === 'anulacion de costo de mercado pago') return 'COMISION';
+
+  // Pagos salientes
+  if (t === 'pago') return 'PAGO';
+
+  // Retiros / transferencias a banco propio
+  if (t === 'retiro de dinero') return 'MOV_FONDOS';
+
+  // Movimiento general = transferencia a cuenta propia
+  if (t === 'movimiento general') return 'MOV_FONDOS';
+
+  // Devoluciones
+  if (t === 'devolución de cobro' || t === 'devolucion de cobro') return 'OTRO';
 
   return 'OTRO';
 }

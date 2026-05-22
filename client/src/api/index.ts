@@ -1,5 +1,11 @@
 const API_BASE = '/api';
 
+export const getBanks = async () => {
+  const res = await fetch(`${API_BASE}/conciliaciones/banks`);
+  if (!res.ok) throw new Error('Error cargando los bancos disponibles');
+  return res.json();
+};
+
 export interface UploadResult {
   id: string;
   extractoMovs: any[];

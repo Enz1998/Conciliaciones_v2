@@ -12,6 +12,7 @@ export type MovementCategory =
   | 'INTERES'
   | 'MOV_FONDOS'
   | 'SUELDOS'
+  | 'RENDIMIENTO'
   | 'OTRO';
 
 export type MatchType = 'AUTO' | 'MANUAL' | 'GROUPED' | 'TAX_CHILD' | 'UNMATCHED';
@@ -51,6 +52,15 @@ export interface RawExtractoMovement {
   LeyendaAdicional4: string;
   TipoMovimiento: string;
   Saldo: string;
+}
+
+// Movimiento crudo del extracto MercadoPago
+export interface RawMPExtractoMovement {
+  fechaPago: string;         // ISO 8601: "2026-04-22T10:09:05Z"
+  tipoOperacion: string;     // "Cobro", "Costo de Mercado Pago", etc.
+  numeroMovimiento: string;  // ID único del movimiento
+  operacionRelacionada: string; // ID del grupo de operaciones relacionadas
+  importe: number;           // positivo = crédito, negativo = débito
 }
 
 // Movimiento crudo del Libro Mayor (ERP)
@@ -106,16 +116,44 @@ export interface ConciliacionState {
   updated_at: string;
 }
 
+export interface MatchStrategy {
+  name: string;
+  execute(extractoMovs: NormalizedMovement[], mayorMovs: NormalizedMovement[]): MatchResult[];
+}
+
+export interface BankMetadata {
+  value: string;
+  label: string;
+  icon: string;
+  extractoLabel: string;
+  mayorLabel: string;
+  acceptFormats: string;
+}
+
+export interface ParseResult<T> {
+  movimientos: T[];
+  saldoInicial?: number;
+  saldoFinal?: number;
+}
+
 // Interface para parsers de banco (patrón Strategy)
 export interface BankParser {
   bankName: string;
-  parseCSV(content: string): RawExtractoMovement[];
-  normalize(raw: RawExtractoMovement[]): NormalizedMovement[];
+  metadata: BankMetadata;
+  // CSV para Galicia
+  parseCSV?(content: string): ParseResult<any>;
+  // XLSX para MercadoPago
+  parseXLSX?(buffer: any): ParseResult<any>;
+  normalize(raw: (RawExtractoMovement | RawMPExtractoMovement)[]): NormalizedMovement[];
+  getMatchingPipeline(): MatchStrategy[];
 }
 
 // Interface para parser de ERP (patrón Strategy)
 export interface ERPParser {
   erpName: string;
-  parseCSV(content: string): RawMayorMovement[];
+  // CSV (Galicia)
+  parseCSV?(content: string): ParseResult<RawMayorMovement>;
+  // XLSX (MercadoPago Mayor)
+  parseXLSX?(buffer: any): ParseResult<RawMayorMovement>;
   normalize(raw: RawMayorMovement[]): NormalizedMovement[];
 }

@@ -8,30 +8,67 @@ import { NormalizedMovement, ConciliacionSummary } from '../../shared/types';
 export class ConciliacionService {
   /**
    * Procesa una conciliación completa:
-   * 1. Parsea el extracto bancario
-   * 2. Parsea el libro mayor
-   * 3. Ejecuta el motor de matcheo
+   * 1. Parsea el extracto bancario (CSV o XLSX según banco)
+   * 2. Parsea el libro mayor (CSV o XLSX según banco)
+   * 3. Ejecuta el motor de matcheo con el pipeline correcto para el banco
    * 4. Guarda todo en la DB
    */
   async procesar(
     conciliacionId: string,
-    extractoContent: string,
-    mayorContent: string,
-    bankName: string = 'galicia'
+    extractoBuffer: Buffer,
+    mayorBuffer: Buffer,
+    bankName: string = 'galicia',
+    extractoFormat: 'csv' | 'xlsx' = 'csv',
+    mayorFormat: 'csv' | 'xlsx' = 'csv'
   ) {
     // 1. Parsear extracto bancario
     const bankParser = getBankParser(bankName);
-    const rawExtracto = bankParser.parseCSV(extractoContent);
-    const extractoMovs = bankParser.normalize(rawExtracto);
+    let extractoMovs: NormalizedMovement[];
+    let autoSaldoIniExt: number | undefined;
+    let autoSaldoFinExt: number | undefined;
+
+    if (extractoFormat === 'xlsx') {
+      if (!bankParser.parseXLSX) {
+        throw new Error(`El parser de ${bankName} no soporta formato XLSX`);
+      }
+      const rawExtracto = bankParser.parseXLSX(extractoBuffer);
+      extractoMovs = bankParser.normalize(rawExtracto.movimientos);
+      autoSaldoIniExt = rawExtracto.saldoInicial;
+      autoSaldoFinExt = rawExtracto.saldoFinal;
+    } else {
+      const content = extractoBuffer.toString('utf-8');
+      if (!bankParser.parseCSV) {
+        throw new Error(`El parser de ${bankName} no soporta formato CSV`);
+      }
+      const rawExtracto = bankParser.parseCSV(content);
+      extractoMovs = bankParser.normalize(rawExtracto.movimientos);
+      autoSaldoIniExt = rawExtracto.saldoInicial;
+      autoSaldoFinExt = rawExtracto.saldoFinal;
+    }
 
     // 2. Parsear libro mayor
     const mayorParser = new MayorParser();
-    const rawMayor = mayorParser.parseCSV(mayorContent);
-    const mayorMovs = mayorParser.normalize(rawMayor);
+    let mayorMovs: NormalizedMovement[];
+    let autoSaldoIniMay: number | undefined;
+    let autoSaldoFinMay: number | undefined;
 
-    // 3. Ejecutar matcheo
+    if (mayorFormat === 'xlsx') {
+      const rawMayor = mayorParser.parseXLSX(mayorBuffer);
+      mayorMovs = mayorParser.normalize(rawMayor.movimientos);
+      autoSaldoIniMay = rawMayor.saldoInicial;
+      autoSaldoFinMay = rawMayor.saldoFinal;
+    } else {
+      const content = mayorBuffer.toString('utf-8');
+      const rawMayor = mayorParser.parseCSV!(content);
+      mayorMovs = mayorParser.normalize(rawMayor.movimientos);
+      autoSaldoIniMay = rawMayor.saldoInicial;
+      autoSaldoFinMay = rawMayor.saldoFinal;
+    }
+
+    // 3. Ejecutar matcheo con pipeline del banco
+    const pipeline = bankParser.getMatchingPipeline();
     const { matches, extractoMovs: matchedExt, mayorMovs: matchedMay } =
-      matchingEngine.execute(extractoMovs, mayorMovs);
+      matchingEngine.execute(extractoMovs, mayorMovs, pipeline);
 
     // 4. Guardar movimientos en DB (batch insert)
     const allMovs = [...matchedExt, ...matchedMay];
@@ -91,9 +128,19 @@ export class ConciliacionService {
       }
     }
 
-    // 6. Actualizar estado de la conciliación
+    // 6. Actualizar estado de la conciliación y los saldos detectados
+    const [currentConc] = await db.select().from(schema.conciliaciones).where(eq(schema.conciliaciones.id, conciliacionId));
+    const updateData: any = { estado: 'COMPLETADA', updated_at: new Date() };
+    
+    if (currentConc) {
+      if (currentConc.saldo_inicial_extracto === null && autoSaldoIniExt !== undefined) updateData.saldo_inicial_extracto = autoSaldoIniExt.toString();
+      if (currentConc.saldo_final_extracto === null && autoSaldoFinExt !== undefined) updateData.saldo_final_extracto = autoSaldoFinExt.toString();
+      if (currentConc.saldo_inicial_mayor === null && autoSaldoIniMay !== undefined) updateData.saldo_inicial_mayor = autoSaldoIniMay.toString();
+      if (currentConc.saldo_final_mayor === null && autoSaldoFinMay !== undefined) updateData.saldo_final_mayor = autoSaldoFinMay.toString();
+    }
+
     await db.update(schema.conciliaciones)
-      .set({ estado: 'COMPLETADA', updated_at: new Date() })
+      .set(updateData)
       .where(eq(schema.conciliaciones.id, conciliacionId));
 
     // 7. Calcular summary
@@ -286,9 +333,14 @@ export class ConciliacionService {
       .filter((m) => m.source === 'MAYOR')
       .map(parseMov) as unknown as NormalizedMovement[];
 
+    // Determinar el banco de la conciliación para usar el pipeline correcto
+    const bankName = (conciliacion as any).banco || 'galicia';
+    const bankParser = getBankParser(bankName);
+    const pipeline = bankParser.getMatchingPipeline();
+
     // 4. Re-ejecutar matching engine
     const { matches, extractoMovs: matchedExt, mayorMovs: matchedMay } =
-      matchingEngine.execute(extractoMovs, mayorMovs);
+      matchingEngine.execute(extractoMovs, mayorMovs, pipeline);
 
     // 5. Guardar nuevos matches
     if (matches.length > 0) {

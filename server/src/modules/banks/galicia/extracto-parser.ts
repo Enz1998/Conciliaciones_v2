@@ -1,19 +1,47 @@
-import { BankParser, RawExtractoMovement, NormalizedMovement } from '../../../shared/types';
+import { BankParser, RawExtractoMovement, NormalizedMovement, BankMetadata, MatchStrategy, ParseResult } from '../../../shared/types';
 import { parseMontoArg, parseFechaDMY, normalizarContraparte, clasificarMovimiento, determinarTipo } from '../../../shared/utils';
 import { v4 as uuid } from 'uuid';
+import { ExactMatchStrategy } from '../../matching/strategies/exact-match';
+import { TaxAssociationStrategy } from '../../matching/strategies/tax-association';
+import { MonthEndMatchStrategy } from '../../matching/strategies/month-end-match';
+import { GroupedMatchStrategy } from '../../matching/strategies/grouped-match';
 
 export class GaliciaExtractoParser implements BankParser {
   readonly bankName = 'Galicia';
+  readonly metadata: BankMetadata = {
+    value: 'galicia',
+    label: 'Banco Galicia',
+    icon: '🏦',
+    extractoLabel: 'Extracto Bancario (.csv)',
+    mayorLabel: 'Libro Mayor ERP (.csv)',
+    acceptFormats: '.csv'
+  };
+
+  getMatchingPipeline(): MatchStrategy[] {
+    return [
+      new ExactMatchStrategy(),
+      new TaxAssociationStrategy(),
+      new MonthEndMatchStrategy(),
+      new GroupedMatchStrategy(),
+    ];
+  }
 
   /**
    * Parsea el CSV del extracto del Galicia.
    * Delimitador: ; | Columnas: Fecha;Descripción;Origen;Débitos;Créditos;...
    */
-  parseCSV(content: string): RawExtractoMovement[] {
+  parseCSV(content: string): ParseResult<RawExtractoMovement> {
     const lines = content.trim().split('\n');
-    if (lines.length < 2) return [];
+    if (lines.length < 2) return { movimientos: [] };
 
     const headers = this.parseLine(lines[0]);
+    
+    // Validación estructural
+    const headerString = headers.join(' ').toLowerCase();
+    if (!headerString.includes('fecha') || !headerString.includes('origen') || !headerString.includes('créditos')) {
+      throw new Error('El archivo no parece ser un extracto válido del Banco Galicia. Verificá que tenga el formato correcto.');
+    }
+
     const result: RawExtractoMovement[] = [];
 
     for (let i = 1; i < lines.length; i++) {
@@ -39,8 +67,15 @@ export class GaliciaExtractoParser implements BankParser {
         Saldo: values[15] || '',
       });
     }
+    let saldoFinal: number | undefined;
+    if (result.length > 0) {
+      const lastRow = result[result.length - 1];
+      if (lastRow.Saldo) {
+        saldoFinal = parseMontoArg(lastRow.Saldo);
+      }
+    }
 
-    return result;
+    return { movimientos: result, saldoFinal };
   }
 
   /**

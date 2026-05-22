@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { UploadPage } from './pages/UploadPage';
 import { ConciliacionPage } from './pages/ConciliacionPage';
 import { ListPage } from './pages/ListPage';
+import { LayoutDashboard, FilePlus, Hexagon } from 'lucide-react';
 
 type Page = 'list' | 'upload' | 'conciliacion';
 
-const SIDEBAR_W = 240;
+const SIDEBAR_W = 200;
 
 export default function App() {
   const [page, setPage] = useState<Page>('list');
@@ -21,7 +22,7 @@ export default function App() {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', fontFamily: "'Inter', sans-serif", background: '#f8f9fb' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', fontFamily: "'Outfit', sans-serif", background: '#f8f9fb' }}>
       {/* Sidebar */}
       <aside style={{
         width: SIDEBAR_W,
@@ -39,34 +40,36 @@ export default function App() {
         {/* Logo */}
         <div style={{ padding: '0 24px', marginBottom: 40 }}>
           <div style={{
-            fontSize: 15, fontWeight: 700, color: '#111',
+            fontSize: 16, fontWeight: 700, color: '#111',
             display: 'flex', alignItems: 'center', gap: 10,
             cursor: 'pointer',
             letterSpacing: '-0.3px',
           }} onClick={() => navigateTo('list')}>
-            <span style={{
+            <div style={{
               width: 34, height: 34, borderRadius: 10,
-              background: '#111', color: '#fff',
+              background: 'linear-gradient(135deg, #111, #333)', color: '#fff',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 16, fontWeight: 800,
-            }}>CB</span>
+              boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
+            }}>
+              <Hexagon size={18} strokeWidth={2.5} />
+            </div>
             Conciliación
           </div>
         </div>
 
         {/* Nav */}
-        <nav style={{ flex: 1, padding: '0 12px' }}>
-          <div style={{ fontSize: 10, fontWeight: 600, color: '#999', textTransform: 'uppercase', letterSpacing: 1, padding: '0 12px', marginBottom: 8 }}>
+        <nav style={{ flex: 1, padding: '0 16px' }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: '#aaa', textTransform: 'uppercase', letterSpacing: 1, padding: '0 12px', marginBottom: 12 }}>
             Menú
           </div>
           <NavItem
-            icon="📋"
+            icon={<LayoutDashboard size={18} />}
             label="Conciliaciones"
             active={page === 'list'}
             onClick={() => navigateTo('list')}
           />
           <NavItem
-            icon="＋"
+            icon={<FilePlus size={18} />}
             label="Nueva"
             active={page === 'upload'}
             onClick={() => navigateTo('upload')}
@@ -80,7 +83,7 @@ export default function App() {
       </aside>
 
       {/* Main content */}
-      <main style={{ marginLeft: SIDEBAR_W, flex: 1, padding: 32 }}>
+      <main style={{ marginLeft: SIDEBAR_W, flex: 1, padding: 24 }}>
         {page === 'list' && <ListPage onSelect={(id) => navigateTo('conciliacion', id)} />}
         {page === 'upload' && (
           <UploadPage onComplete={(id) => navigateTo('conciliacion', id)} />
@@ -94,23 +97,28 @@ export default function App() {
 }
 
 function NavItem({ icon, label, active, onClick }: {
-  icon: string; label: string; active: boolean; onClick: () => void;
+  icon: React.ReactNode; label: string; active: boolean; onClick: () => void;
 }) {
   return (
     <button
       onClick={onClick}
+      onMouseOver={(e) => { if (!active) e.currentTarget.style.background = '#f4f5f7'; }}
+      onMouseOut={(e) => { if (!active) e.currentTarget.style.background = 'transparent'; }}
       style={{
-        display: 'flex', alignItems: 'center', gap: 10,
-        width: '100%', padding: '10px 12px', marginBottom: 2,
+        display: 'flex', alignItems: 'center', gap: 12,
+        width: '100%', padding: '10px 14px', marginBottom: 4,
         borderRadius: 8, border: 'none', cursor: 'pointer',
         fontSize: 14, fontWeight: 500,
-        background: active ? '#f0f0f5' : 'transparent',
-        color: active ? '#111' : '#666',
-        transition: 'all 0.15s',
+        background: active ? '#fff' : 'transparent',
+        boxShadow: active ? '0 2px 8px rgba(0,0,0,0.04)' : 'none',
+        color: active ? '#111' : '#6b7280',
+        transition: 'all 0.2s ease',
         textAlign: 'left',
       }}
     >
-      <span style={{ fontSize: 16, width: 22, textAlign: 'center' }}>{icon}</span>
+      <div style={{ display: 'flex', alignItems: 'center', color: active ? '#111' : '#9ca3af', transition: 'color 0.2s ease' }}>
+        {icon}
+      </div>
       {label}
     </button>
   );
