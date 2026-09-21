@@ -1,0 +1,32 @@
+{
+  "name": "conciliaciones-v2",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "npm run build --prefix client",
+    "postinstall": "npm install --prefix client && npm install --prefix server"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.9.5",
+    "cors": "^2.8.5",
+    "csv-parse": "^5.5.0",
+    "decimal.js": "^10.6.0",
+    "dotenv": "^16.3.1",
+    "drizzle-orm": "^0.30.0",
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.11.0",
+    "uuid": "^9.0.0",
+    "ws": "^8.20.1",
+    "xlsx": "^0.18.5",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/multer": "^1.4.11",
+    "@types/pg": "^8.10.0",
+    "@types/uuid": "^9.0.0",
+    "typescript": "^5.3.0"
+  }
+}
