@@ -1,10 +1,11 @@
 import { db, schema } from '../../db';
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, inArray, sql } from 'drizzle-orm';
 import { getBankParser } from '../banks/registry';
 import { MayorParser } from '../erp/mayor-parser';
 import { matchingEngine } from '../matching/engine';
 import { NormalizedMovement, ConciliacionSummary } from '../../shared/types';
 import Decimal from 'decimal.js';
+
 
 export class ConciliacionService {
   /**
@@ -290,7 +291,6 @@ export class ConciliacionService {
     const allIds = [...extractoIds, ...mayorIds];
 
     // Obtener SOLO los movimientos involucrados
-    const { inArray } = await import('drizzle-orm');
     const involucrados = await db.query.movimientos.findMany({
       where: inArray(schema.movimientos.id, allIds),
     });
@@ -302,12 +302,13 @@ export class ConciliacionService {
 
     let extSum = new Decimal(0);
     let maySum = new Decimal(0);
-    for (const m of involucrados) {
+    for (const m of (involucrados as any[])) {
       if (extSet.has(m.id)) extSum = extSum.plus(calcSigned(m));
       if (maySet.has(m.id)) maySum = maySum.plus(calcSigned(m));
     }
     
     const diff = extSum.minus(maySum).absoluteValue();
+
 
     await db.transaction(async (tx) => {
       await tx.insert(schema.matches).values({
