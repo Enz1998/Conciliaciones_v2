@@ -1,0 +1,35 @@
+﻿"Fecha";"Descripción";"Origen";"Débitos";"Créditos";"Grupo de Conceptos";"Concepto";"Número de Terminal";"Observaciones Cliente";"Número de Comprobante";"Leyendas Adicionales1";"Leyendas Adicionales2";"Leyendas Adicionales3";"Leyendas Adicionales4";"Tipo de Movimiento";"Saldo"
+
+"31/08/2026";"Servicio Pago A Proveedores";"";"0";"49549,50";"000909 - Pago Proveedores";"917123 - SERVICIO PAGO A PROVEEDORES";"";"";"";"COOPERATIVA DE TRABAJO ARRAYANES LIMITADA";"30717736369";"FACTURAS";"BANCO DE GALICIA Y BUENOS AIRES SAU";"Imputado";"8645274,18";
+"31/08/2026";"Ing. Brutos S/ Cred";"";"29,73";"0";"000901 - Impuestos";"907173 - ING. BRUTOS S/ CRED";"";"";"";"DT.301/03-TUCUMAN";"";"";"";"Imputado";"8645244,45";
+"31/08/2026";"Ing. Brutos S/ Cred";"";"495,50";"0";"000901 - Impuestos";"907173 - ING. BRUTOS S/ CRED";"";"";"";"REG.RECAU.SIRCREB";"";"";"";"Imputado";"8644748,95";
+"31/08/2026";"Transferencia De Terceros";"";"0";"119729,92";"000907 - Transferencias";"917151 - TRANSFERENCIA DE TERCEROS";"TEBM0000";"";"";"TUPUNGATO NUECES SRL";"30719022959";"2850518330094247559431";"351809424755";"Imputado";"8764478,87";
+"31/08/2026";"Ing. Brutos S/ Cred";"";"71,84";"0";"000901 - Impuestos";"907173 - ING. BRUTOS S/ CRED";"";"";"";"DT.301/03-TUCUMAN";"";"";"";"Imputado";"8764407,03";
+"31/08/2026";"Ing. Brutos S/ Cred";"";"1197,30";"0";"000901 - Impuestos";"907173 - ING. BRUTOS S/ CRED";"";"";"";"REG.RECAU.SIRCREB";"";"";"";"Imputado";"8763209,73";
+"31/08/2026";"Transferencias Cash Proveedores";"";"0";"170677,00";"000907 - Transferencias";"917193 - TRANSFERENCIAS CASH PROVEEDORES";"";"";"4195791";"TANUS JALIL E HI";"30626813999";"BANCO SANTANDER RIO S.A.";"";"Imputado";"8933886,73";
+"31/08/2026";"Ing. Brutos S/ Cred";"";"102,41";"0";"000901 - Impuestos";"907173 - ING. BRUTOS S/ CRED";"";"";"";"DT.301/03-TUCUMAN";"";"";"";"Imputado";"8933784,32";
+"31/08/2026";"Ing. Brutos S/ Cred";"";"1706,77";"0";"000901 - Impuestos";"907173 - ING. BRUTOS S/ CRED";"";"";"";"REG.RECAU.SIRCREB";"";"";"";"Imputado";"8932077,55";
+"31/08/2026";"Transferencia De Terceros";"A0D5";"0";"362319,00";"000907 - Transferencias";"917151 - TRANSFERENCIA DE TERCEROS";"LINK0009100D5";"";"";"CANAL GRANDE SRL";"30711840415";"1910049055004900148996";"1910490014899";"Imputado";"9294396,55";
+"31/08/2026";"Ing. Brutos S/ Cred";"";"217,39";"0";"000901 - Impuestos";"907173 - ING. BRUTOS S/ CRED";"";"";"";"DT.301/03-TUCUMAN";"";"";"";"Imputado";"9294179,16";
+"31/08/2026";"Ing. Brutos S/ Cred";"";"3623,19";"0";"000901 - Impuestos";"907173 - ING. BRUTOS S/ CRED";"";"";"";"REG.RECAU.SIRCREB";"";"";"";"Imputado";"9290555,97";
+"31/08/2026";"Transferencia De Terceros";"A0D5";"0";"472457,20";"000907 - Transferencias";"917151 - TRANSFERENCIA DE TERCEROS";"LINK0011100D5";"";"";"ESTABL METAL RENANIA S";"30502752614";"1910010055001000389850";"1910100038985";"Imputado";"9763013,17";
+"31/08/2026";"Ing. Brutos S/ Cred";"";"283,47";"0";"000901 - Impuestos";"907173 - ING. BRUTOS S/ CRED";"";"";"";"DT.301/03-TUCUMAN";"";"";"";"Imputado";"9762729,70";
+"31/08/2026";"Ing. Brutos S/ Cred";"";"4724,57";"0";"000901 - Impuestos";"907173 - ING. BRUTOS S/ CRED";"";"";"";"REG.RECAU.SIRCREB";"";"";"";"Imputado";"9758005,13";
+"31/08/2026";"Transferencia De Terceros";"A0D5";"0";"337932,80";"000907 - Transferencias";"917151 - TRANSFERENCIA DE TERCEROS";"LINK0012100D5";"";"";"DEVIC S.R.L.";"30707940200";"0110299620029901488713";"921829901488";"Imputado";"10095937,93";
+"31/08/2026";"Ing. Brutos S/ Cred";"";"202,76";"0";"000901 - Impuestos";"907173 - ING. BRUTOS S/ CRED";"";"";"";"DT.301/03-TUCUMAN";"";"";"";"Imputado";"10095735,17";
+"31/08/2026";"Ing. Brutos S/ Cred";"";"3379,33";"0";"000901 - Impuestos";"907173 - ING. BRUTOS S/ CRED";"";"";"";"REG.RECAU.SIRCREB";"";"";"";"Imputado";"10092355,84";
+"31/08/2026";"Credito Transferencia Coelsa";"";"0";"297922,52";"000907 - Transferencias";"917151 - TRANSFERENCIA DE TERCEROS";"";"";"";"Francisco Veron";"20345650807";"";"";"Imputado";"10390278,36";
+"31/08/2026";"Ing. Brutos S/ Cred";"";"178,75";"0";"000901 - Impuestos";"907173 - ING. BRUTOS S/ CRED";"";"";"";"DT.301/03-TUCUMAN";"";"";"";"Imputado";"10390099,61";
+"31/08/2026";"Ing. Brutos S/ Cred";"";"2979,23";"0";"000901 - Impuestos";"907173 - ING. BRUTOS S/ CRED";"";"";"";"REG.RECAU.SIRCREB";"";"";"";"Imputado";"10387120,38";
+"31/08/2026";"Imp. Cre. Ley 25413";"";"10863,53";"0";"000901 - Impuestos";"907376 - IMP. CRE. LEY 25413";"";"";"";"";"";"";"";"Imputado";"10376256,85";
+"31/08/2026";"Imp. Deb. Ley 25413 Gral.";"";"6,52";"0";"000901 - Impuestos";"907176 - IMP. DEB. LEY 25413";"";"";"";"";"";"";"";"Imputado";"10376250,33";
+"31/08/2026";"Imp. Deb. Ley 25413 Gral.";"";"108,64";"0";"000901 - Impuestos";"907176 - IMP. DEB. LEY 25413";"";"";"";"";"";"";"";"Imputado";"10376141,69";
+"31/08/2026";"G.de Echeq   Q00393804 Bol33741840";"";"0";"226834,80";"000914 - Cheques";"917195 - G.DE CHEQUE  Q:&1";"";"";"393804";"";"";"";"";"Imputado";"10602976,49";
+"31/08/2026";"Ing. Brutos S/ Cred";"";"136,10";"0";"000901 - Impuestos";"907173 - ING. BRUTOS S/ CRED";"";"";"";"DT.301/03-TUCUMAN";"";"";"";"Imputado";"10602840,39";
+"31/08/2026";"Ing. Brutos S/ Cred";"";"2268,35";"0";"000901 - Impuestos";"907173 - ING. BRUTOS S/ CRED";"";"";"";"REG.RECAU.SIRCREB";"";"";"";"Imputado";"10600572,04";
+"31/08/2026";"Com. Deposito De Cheque   393804";"";"1587,84";"0";"000808 - Comisiones";"907188 - COM. DEPOSITO DE CHEQUE &1";"";"";"393804";"";"";"";"";"Imputado";"10598984,20";
+"31/08/2026";"Iva";"";"333,45";"0";"000901 - Impuestos";"907171 - IVA";"";"";"";"";"";"";"";"Imputado";"10598650,75";
+"31/08/2026";"Imp. Deb. Ley 25413 Gral.";"";"11,53";"0";"000901 - Impuestos";"907176 - IMP. DEB. LEY 25413";"";"";"";"";"";"";"";"Imputado";"10598639,22";
+"31/08/2026";"Imp. Cre. Ley 25413";"";"1361,01";"0";"000901 - Impuestos";"907376 - IMP. CRE. LEY 25413";"";"";"";"";"";"";"";"Imputado";"10597278,21";
+"31/08/2026";"Imp. Deb. Ley 25413 Gral.";"";"0,82";"0";"000901 - Impuestos";"907176 - IMP. DEB. LEY 25413";"";"";"";"";"";"";"";"Imputado";"10597277,39";
+"31/08/2026";"Imp. Deb. Ley 25413 Gral.";"";"13,61";"0";"000901 - Impuestos";"907176 - IMP. DEB. LEY 25413";"";"";"";"";"";"";"";"Imputado";"10597263,78";

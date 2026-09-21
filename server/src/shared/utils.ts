@@ -41,23 +41,33 @@ export function parseMontoERP(valor: string): number {
 }
 
 /**
- * Parsea una fecha en formato DD/MM/YYYY a YYYY-MM-DD.
+ * Expande un año de 2 dígitos a 4 dígitos, asumiendo el siglo 2000.
+ * Si ya viene con 4 dígitos, lo deja igual.
+ */
+function expandirAnio(y: string): string {
+  return y.length === 2 ? `20${y}` : y;
+}
+
+/**
+ * Parsea una fecha en formato DD/MM/YYYY (o DD/MM/YY) a YYYY-MM-DD.
  */
 export function parseFechaDMY(valor: string): string {
   const partes = valor.trim().split('/');
   if (partes.length !== 3) return valor;
   const [d, m, y] = partes;
-  return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+  return `${expandirAnio(y)}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
 }
 
 /**
- * Parsea una fecha en formato DD-MM-YYYY a YYYY-MM-DD.
+ * Parsea una fecha en formato DD-MM-YYYY o DD/MM/YYYY (o YY) a YYYY-MM-DD.
  */
 export function parseFechaDMYGuion(valor: string): string {
-  const partes = valor.trim().split('-');
+  if (!valor) return valor;
+  const sep = valor.includes('/') ? '/' : '-';
+  const partes = valor.trim().split(sep);
   if (partes.length !== 3) return valor;
   const [d, m, y] = partes;
-  return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+  return `${expandirAnio(y)}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
 }
 
 /**
@@ -75,6 +85,35 @@ export function parseFechaISO(valor: string | Date): string {
   }
   // Tomar solo la parte de la fecha del string ISO
   return String(valor).substring(0, 10);
+}
+
+/**
+ * Parsea una fecha de Banco Macro a YYYY-MM-DD.
+ * El .xls de Macro suele traer la fecha como texto "YY-MM-DD" (año de 2 dígitos,
+ * ej. "26-08-03" = 3 de agosto de 2026), que NO es ISO 8601 y rompe si se pasa
+ * directo a Postgres (se interpreta como mes 26 y falla).
+ */
+export function parseFechaMacro(valor: string | Date): string {
+  if (valor instanceof Date) return parseFechaISO(valor);
+
+  const str = String(valor).trim();
+
+  // "YY-MM-DD" (año de 2 dígitos) -> asumimos 20YY
+  const yyMatch = str.match(/^(\d{2})-(\d{2})-(\d{2})$/);
+  if (yyMatch) {
+    const [, yy, mm, dd] = yyMatch;
+    return `20${yy}-${mm}-${dd}`;
+  }
+
+  // "DD/MM/YYYY"
+  const dmySlash = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (dmySlash) {
+    const [, d, m, y] = dmySlash;
+    return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+  }
+
+  // Ya es ISO ("YYYY-MM-DD...") u otro formato desconocido: dejar como venía
+  return parseFechaISO(str);
 }
 
 /**
@@ -181,4 +220,77 @@ export function determinarTipo(
   if (tieneDebito && !tieneCredito) return 'DEBITO';
   if (tieneCredito && !tieneDebito) return 'CREDITO';
   return 'CREDITO'; // default
+}
+
+/**
+ * Clasifica un movimiento del Banco Macro según su concepto y causal.
+ * Usa primero el texto del concepto (más descriptivo) y luego el código causal como fallback.
+ */
+export function clasificarMovimientoMacro(concepto: string, causal: string): MovementCategory {
+  const c = concepto.toUpperCase();
+
+  // --- Impuestos ---
+  if (/DBCR\s*25413/i.test(c)) return 'IMPUESTO';
+  if (/RET\.?\s*IIBB|RET\.?\s*ING\.?\s*BRUTOS|SIRCREB/i.test(c)) return 'IMPUESTO';
+  if (/DGR\s*SELLOS/i.test(c)) return 'IMPUESTO';
+  if (/PERCEPCION\s*ING\s*BRUTOS/i.test(c)) return 'IMPUESTO';
+  if (/DEBITO\s*FISCAL\s*IVA/i.test(c)) return 'IMPUESTO';
+  if (/IMP\.\s*DEB\.|IMP\.\s*CRE\./i.test(c)) return 'IMPUESTO';
+  if (/PERCEP\.\s*IVA/i.test(c)) return 'IMPUESTO';
+  if (causal === '1684' || causal === '1685') return 'IMPUESTO';
+  if (causal === '1972' || causal === '1297' || causal === '1478' || causal === '1469') return 'IMPUESTO';
+
+  // --- Intereses ---
+  if (/INTER\.?\s*ADEL|INTERESES/i.test(c)) return 'INTERES';
+
+  // --- Comisiones ---
+  if (/COMISION/i.test(c)) return 'COMISION';
+  if (causal === '3914') return 'COMISION';
+
+  // --- Sueldos ---
+  if (/PAGO\s*REMUNERACIONES|HABERES|SUELDO/i.test(c)) return 'SUELDOS';
+  if (causal === '1693') return 'SUELDOS';
+
+  // --- Movimiento de fondos (transferencias propias, préstamos, tarjeta) ---
+  if (/TEF\s*DATANET/i.test(c)) return 'MOV_FONDOS';
+  if (/ING\s*TRANSF/i.test(c)) return 'MOV_FONDOS';
+  if (/TRANSF\.?\s*MACR?ONLINE/i.test(c)) return 'MOV_FONDOS';
+  if (/DEBITO\s*PRESTAMOS/i.test(c)) return 'MOV_FONDOS';
+  if (/DB\s*TARJETA\s*DE\s*CREDITO/i.test(c)) return 'MOV_FONDOS';
+  if (causal === '3912' || causal === '3913') return 'MOV_FONDOS';
+  if (causal === '361') return 'MOV_FONDOS';
+  if (causal === '1059') return 'MOV_FONDOS';
+  if (causal === '2018') return 'MOV_FONDOS';
+  if (causal === '4543') return 'MOV_FONDOS';
+
+  // --- Transferencias entrantes (posible cobranza de terceros) ---
+  if (/^TRANSF:/i.test(c)) return 'COBRANZA';
+  if (causal === '4254') return 'COBRANZA';
+
+  // Fallback: usar clasificación genérica
+  return clasificarMovimiento(concepto);
+}
+
+/**
+ * Extrae el nombre o CUIT de la contraparte del campo Concepto de Banco Macro.
+ * Patrones detectados:
+ * - "TEF DATANET MT NOMBRE CUIT"
+ * - "ING TRANSF:NOMBRE-CUIT"
+ * - "TRANSF:CODIGO-CUIT"
+ * - "DB PAGO REMUNERACIONES" (sin contraparte)
+ */
+export function extraerContraparteMacro(concepto: string): string {
+  // TEF DATANET MT NOMBRE      CUIT
+  const tefMatch = concepto.match(/TEF\s+DATANET\s+MT\s+(.+?)\s{2,}(\d{11})/i);
+  if (tefMatch) return tefMatch[1].trim();
+
+  // ING TRANSF:NOMBRE-CUIT
+  const ingMatch = concepto.match(/ING\s+TRANSF:(.+?)-(\d{11})/i);
+  if (ingMatch) return ingMatch[1].trim();
+
+  // TRANSF:CODIGO-CUIT (no hay nombre, devolver CUIT)
+  const transfMatch = concepto.match(/TRANSF:\S+-(\d{11})/i);
+  if (transfMatch) return transfMatch[1];
+
+  return '';
 }

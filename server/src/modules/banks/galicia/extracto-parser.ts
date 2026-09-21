@@ -20,7 +20,6 @@ export class GaliciaExtractoParser implements BankParser {
   getMatchingPipeline(): MatchStrategy[] {
     return [
       new ExactMatchStrategy(),
-      new TaxAssociationStrategy(),
       new MonthEndMatchStrategy(),
       new GroupedMatchStrategy(),
     ];
@@ -30,22 +29,28 @@ export class GaliciaExtractoParser implements BankParser {
    * Parsea el CSV del extracto del Galicia.
    * Delimitador: ; | Columnas: Fecha;Descripción;Origen;Débitos;Créditos;...
    */
-  parseCSV(content: string): ParseResult<RawExtractoMovement> {
-    const lines = content.trim().split('\n');
-    if (lines.length < 2) return { movimientos: [] };
-
-    const headers = this.parseLine(lines[0]);
-    
-    // Validación estructural
-    const headerString = headers.join(' ').toLowerCase();
-    if (!headerString.includes('fecha') || !headerString.includes('origen') || !headerString.includes('créditos')) {
-      throw new Error('El archivo no parece ser un extracto válido del Banco Galicia. Verificá que tenga el formato correcto.');
-    }
+  async parseCSV(stream: import('stream').Readable, encoding: BufferEncoding): Promise<ParseResult<RawExtractoMovement>> {
+    const readline = require('readline');
+    const rl = readline.createInterface({
+      input: stream,
+      crlfDelay: Infinity
+    });
 
     const result: RawExtractoMovement[] = [];
+    let isFirstLine = true;
 
-    for (let i = 1; i < lines.length; i++) {
-      const values = this.parseLine(lines[i]);
+    for await (const line of rl) {
+      if (isFirstLine) {
+        isFirstLine = false;
+        const headers = this.parseLine(line);
+        const headerString = headers.join(' ').toLowerCase();
+        if (!headerString.includes('fecha') || !headerString.includes('origen') || !headerString.includes('créditos')) {
+          throw new Error('El archivo no parece ser un extracto válido del Banco Galicia. Verificá que tenga el formato correcto.');
+        }
+        continue;
+      }
+
+      const values = this.parseLine(line);
       if (values.length < 12) continue;
 
       result.push({
@@ -67,6 +72,7 @@ export class GaliciaExtractoParser implements BankParser {
         Saldo: values[15] || '',
       });
     }
+
     let saldoFinal: number | undefined;
     if (result.length > 0) {
       const lastRow = result[result.length - 1];

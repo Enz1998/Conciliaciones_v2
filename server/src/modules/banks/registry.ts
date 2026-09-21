@@ -1,6 +1,7 @@
 import { BankParser } from '../../shared/types';
 import { GaliciaExtractoParser } from './galicia/extracto-parser';
 import { MercadoPagoExtractoParser } from './mercadopago/extracto-parser';
+import { MacroExtractoParser } from './macro/extracto-parser';
 
 /**
  * Registro de parsers bancarios.
@@ -11,12 +12,9 @@ import { MercadoPagoExtractoParser } from './mercadopago/extracto-parser';
  */
 export const bankParsers: Map<string, BankParser> = new Map();
 
-// Registrar parsers disponibles
+// Registrar parsers disponibles (solo Galicia activo)
 const galiciaParser = new GaliciaExtractoParser();
 bankParsers.set('galicia', galiciaParser);
-
-const mpParser = new MercadoPagoExtractoParser();
-bankParsers.set('mercadopago', mpParser);
 
 export function getBankParser(bankName: string): BankParser {
   const parser = bankParsers.get(bankName.toLowerCase());
@@ -30,4 +28,5 @@ export function listBanks(): string[] {
   return [...bankParsers.keys()];
 }
 
-export { GaliciaExtractoParser, MercadoPagoExtractoParser };
+export { GaliciaExtractoParser, MercadoPagoExtractoParser, MacroExtractoParser };
+

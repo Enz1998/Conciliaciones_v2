@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Arctic Ledger | Conciliación Bancaria</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#cbe6fa",
+                    "surface-dim": "#d4dbe3",
+                    "on-secondary-container": "#003c6f",
+                    "surface-container": "#e8eef7",
+                    "secondary": "#0060aa",
+                    "on-primary-fixed": "#001e31",
+                    "primary": "#006496",
+                    "secondary-container": "#62a9fd",
+                    "error": "#ba1a1a",
+                    "surface-container-highest": "#dce3ec",
+                    "surface-container-low": "#eef4fd",
+                    "on-secondary": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "on-primary-fixed-variant": "#004b72",
+                    "on-primary-container": "#004e76",
+                    "on-tertiary-fixed": "#011e2d",
+                    "error-container": "#ffdad6",
+                    "inverse-surface": "#2a3138",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error": "#ffffff",
+                    "surface-container-high": "#e2e9f1",
+                    "on-secondary-fixed": "#001c39",
+                    "on-background": "#151c22",
+                    "outline": "#707880",
+                    "primary-fixed-dim": "#91cdff",
+                    "secondary-fixed": "#d3e3ff",
+                    "on-surface": "#151c22",
+                    "on-surface-variant": "#40484f",
+                    "tertiary": "#486272",
+                    "inverse-primary": "#91cdff",
+                    "surface-bright": "#f6f9ff",
+                    "inverse-on-surface": "#ebf1fa",
+                    "outline-variant": "#c0c7d1",
+                    "surface": "#f6f9ff",
+                    "primary-container": "#74c0fc",
+                    "on-tertiary": "#ffffff",
+                    "secondary-fixed-dim": "#a3c9ff",
+                    "tertiary-fixed-dim": "#afcadd",
+                    "on-tertiary-fixed-variant": "#304a5a",
+                    "surface-tint": "#006496",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-container": "#334d5d",
+                    "primary-fixed": "#cce5ff",
+                    "on-secondary-fixed-variant": "#004882",
+                    "background": "#f6f9ff",
+                    "tertiary-container": "#a2bdd0",
+                    "surface-variant": "#dce3ec"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "24px",
+                    "base": "8px",
+                    "section-gap": "80px",
+                    "container-padding": "32px"
+            },
+            "fontFamily": {
+                    "headline-xl": ["Outfit"],
+                    "label-sm": ["Outfit"],
+                    "headline-md": ["Outfit"],
+                    "headline-lg": ["Outfit"],
+                    "body-lg": ["Outfit"],
+                    "data-display": ["Outfit"],
+                    "body-md": ["Outfit"]
+            },
+            "fontSize": {
+                    "headline-xl": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.03em", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400"}],
+                    "data-display": ["16px", {"lineHeight": "1", "letterSpacing": "0", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #f6f9ff;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(145, 205, 255, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(0, 100, 150, 0.05) 0px, transparent 50%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="text-on-surface">
+<!-- SideNavBar (Shared Component) -->
+<aside class="fixed left-4 top-4 bottom-4 w-64 rounded-xl border border-white/20 bg-white/40 backdrop-blur-[30px] shadow-[0_40px_40px_-15px_rgba(0,100,150,0.04)] flex flex-col p-6 gap-y-4 z-50">
+<div class="mb-8">
+<h1 class="text-headline-md font-headline-md font-bold text-primary tracking-tight">Arctic Ledger</h1>
+<p class="text-label-sm font-label-sm uppercase tracking-wider text-on-surface-variant/70">Premium SaaS</p>
+</div>
+<nav class="flex flex-col gap-y-2 flex-grow">
+<a class="flex items-center gap-x-3 p-3 rounded-lg text-primary font-bold scale-[0.98] active:scale-95 transition-all duration-300" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-x-3 p-3 rounded-lg text-on-surface-variant/70 hover:bg-white/20 hover:text-primary transition-all duration-300" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="font-body-md text-body-md">Reconciliation</span>
+</a>
+<a class="flex items-center gap-x-3 p-3 rounded-lg text-on-surface-variant/70 hover:bg-white/20 hover:text-primary transition-all duration-300" href="#">
+<span class="material-symbols-outlined">upload_file</span>
+<span class="font-body-md text-body-md">File Upload</span>
+</a>
+<a class="flex items-center gap-x-3 p-3 rounded-lg text-on-surface-variant/70 hover:bg-white/20 hover:text-primary transition-all duration-300" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-body-md text-body-md">History</span>
+</a>
+<a class="flex items-center gap-x-3 p-3 rounded-lg text-on-surface-variant/70 hover:bg-white/20 hover:text-primary transition-all duration-300" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+</nav>
+<button class="mt-auto w-full py-3 px-4 bg-primary text-white rounded-lg font-headline-md text-body-md font-bold shadow-lg shadow-primary/20 hover:brightness-110 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" style="font-size: 20px;">add_circle</span>
+            New Match
+        </button>
+</aside>
+<!-- TopAppBar (Shared Component) -->
+<header class="fixed top-0 right-0 left-72 h-20 bg-white/40 backdrop-blur-[20px] flex items-center justify-between px-gutter w-full max-w-full z-40">
+<div class="flex items-center gap-4">
+<div class="relative group">
+<span class="absolute inset-y-0 left-3 flex items-center text-outline">
+<span class="material-symbols-outlined">search</span>
+</span>
+<input class="pl-10 pr-4 py-2 bg-white/50 border-none rounded-full focus:ring-2 focus:ring-primary/20 w-64 transition-all duration-300 text-body-md" placeholder="Search transactions..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="flex items-center gap-3 border-l border-outline-variant/30 pl-6">
+<div class="text-right">
+<p class="font-body-md text-body-md font-semibold text-on-surface">Alex Rivera</p>
+<p class="text-label-sm font-label-sm uppercase tracking-wider text-outline">Admin</p>
+</div>
+<img alt="Administrator Profile" class="w-10 h-10 rounded-full border-2 border-primary/20 object-cover" data-alt="A professional studio portrait of a modern executive male with a kind expression, wearing a high-end charcoal suit. The background is a clean, bright minimalist studio setting with soft high-key lighting that perfectly matches a professional fintech light-mode UI. The color palette is composed of soft whites, ice blues, and deep neutral tones, evoking clarity and trust." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYWt4Alrb4Z-OYT9HMi33iqoiyQDi25EINzuXPaS-vYDGd0ioyxDCMwdEtnJt8ZajA0hJ4XgYuys1Zfjpev_nk-nP1Z2Vfnho0rAw4Pubb-qWY8CXFp4qXvz11gTEtP2RxJFj8_FDtxsYrHiZKZU3iKOfj3EpI7ZoA1-Volrdz1HdgHD8Vig4gIb4ZIRDX4M97awbydzuQxU8Oy9hZNxgLUbW9LHnCnpizSCRc4ynIBjo2LUvKyDdUlun62GviX1Oa1yn894F4tEwh"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-72 pt-24 p-gutter max-w-[1400px]">
+<!-- Hero Section -->
+<section class="mb-section-gap">
+<h2 class="font-headline-xl text-headline-xl text-on-surface mb-2">Bienvenido, Alex.</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+                Su flujo de trabajo de conciliación está al día. Hemos detectado 3 nuevas discrepancias que requieren su atención hoy.
+            </p>
+</section>
+<!-- Bento Grid Metrics -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-section-gap">
+<!-- Metric Card 1 (Large Span) -->
+<div class="glass-card p-container-padding rounded-xl col-span-1 md:col-span-2 relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined" style="font-size: 120px; font-variation-settings: 'wght' 100;">account_balance</span>
+</div>
+<div class="relative z-10 h-full flex flex-col justify-between">
+<div>
+<span class="text-label-sm font-label-sm uppercase tracking-wider text-primary bg-primary/10 px-3 py-1 rounded-full">Estado Actual</span>
+<h3 class="font-headline-lg text-headline-lg mt-4">Conciliaciones Pendientes</h3>
+</div>
+<div class="flex items-end justify-between mt-8">
+<span class="font-headline-xl text-headline-xl text-primary">124</span>
+<div class="text-right">
+<p class="text-body-md font-body-md text-secondary font-bold">+12% vs ayer</p>
+<p class="text-label-sm font-label-sm text-outline">Actualizado hace 5 min</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Metric Card 2 (Small) -->
+<div class="glass-card p-container-padding rounded-xl flex flex-col justify-between">
+<div>
+<span class="material-symbols-outlined text-primary mb-4" style="font-size: 32px;">verified</span>
+<h3 class="font-headline-md text-headline-md">Tasa de Match</h3>
+</div>
+<div>
+<div class="w-full bg-surface-container-highest h-2 rounded-full mb-4 overflow-hidden">
+<div class="bg-primary h-full rounded-full w-[94.2%]"></div>
+</div>
+<span class="font-headline-lg text-headline-lg text-on-surface">94.2%</span>
+<p class="text-label-sm font-label-sm text-outline">Eficiencia algorítmica premium</p>
+</div>
+</div>
+<!-- Metric Card 3 (Small) -->
+<div class="glass-card p-container-padding rounded-xl border-error/20 bg-error/5!">
+<div class="flex justify-between items-start">
+<div>
+<span class="material-symbols-outlined text-error mb-4" style="font-size: 32px;">warning</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Diferencias Detectadas</h3>
+</div>
+</div>
+<div class="mt-8">
+<span class="font-headline-lg text-headline-lg text-error">03</span>
+<div class="flex items-center gap-2 mt-2">
+<span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Acción urgente requerida</p>
+</div>
+</div>
+</div>
+<!-- Metric Card 4 (Small - Extra info) -->
+<div class="glass-card p-container-padding rounded-xl md:col-span-1">
+<h3 class="font-headline-md text-headline-md mb-6">Próximo Cierre</h3>
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">calendar_today</span>
+</div>
+<div>
+<p class="font-body-md text-body-md font-bold">28 Feb 2024</p>
+<p class="text-label-sm font-label-sm text-outline">Cierre mensual automatizado</p>
+</div>
+</div>
+</div>
+<!-- Metric Card 5 (Info) -->
+<div class="glass-card p-container-padding rounded-xl md:col-span-1">
+<h3 class="font-headline-md text-headline-md mb-6">Integraciones</h3>
+<div class="flex -space-x-3">
+<div class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center border border-outline-variant/20">
+<span class="material-symbols-outlined text-primary" style="font-size: 20px;">cloud_upload</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center border border-outline-variant/20">
+<span class="material-symbols-outlined text-secondary" style="font-size: 20px;">account_balance</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center border border-outline-variant/20">
+<span class="material-symbols-outlined text-tertiary" style="font-size: 20px;">payments</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-label-sm font-bold border border-outline-variant/20">
+                        +4
+                    </div>
+</div>
+<p class="text-label-sm font-label-sm text-outline mt-4">Sincronización activa en tiempo real</p>
+</div>
+</section>
+<!-- Records Table Section -->
+<section>
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline-lg text-headline-lg">Registros Históricos</h3>
+<div class="flex gap-3">
+<button class="px-4 py-2 rounded-lg glass-card text-body-md font-medium hover:bg-white/60 transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-size: 18px;">filter_list</span>
+                        Filtrar
+                    </button>
+<button class="px-4 py-2 rounded-lg glass-card text-body-md font-medium hover:bg-white/60 transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-size: 18px;">download</span>
+                        Exportar
+                    </button>
+</div>
+</div>
+<div class="glass-card rounded-xl overflow-hidden">
+<table class="w-full text-left">
+<thead>
+<tr class="border-b border-outline-variant/10">
+<th class="p-6 font-label-sm text-label-sm uppercase tracking-wider text-outline">Transacción</th>
+<th class="p-6 font-label-sm text-label-sm uppercase tracking-wider text-outline">Fecha</th>
+<th class="p-6 font-label-sm text-label-sm uppercase tracking-wider text-outline text-right">Monto</th>
+<th class="p-6 font-label-sm text-label-sm uppercase tracking-wider text-outline">Entidad</th>
+<th class="p-6 font-label-sm text-label-sm uppercase tracking-wider text-outline">Estado</th>
+<th class="p-6"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<tr class="hover:bg-white/20 transition-colors group">
+<td class="p-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-size: 16px;">receipt_long</span>
+</div>
+<span class="font-body-md text-body-md font-semibold">TRX-98234-ALP</span>
+</div>
+</td>
+<td class="p-6 font-data-display text-data-display text-on-surface-variant">24 Feb, 2024</td>
+<td class="p-6 font-data-display text-data-display text-right font-bold text-on-surface">$12,450.00</td>
+<td class="p-6 font-body-md text-body-md text-on-surface-variant">JPMorgan Chase</td>
+<td class="p-6">
+<span class="px-3 py-1 rounded-full bg-secondary-container/20 text-secondary text-label-sm font-bold">CONCILIADO</span>
+</td>
+<td class="p-6 text-right">
+<button class="opacity-0 group-hover:opacity-100 transition-opacity text-outline hover:text-primary">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-white/20 transition-colors group">
+<td class="p-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-error/10 flex items-center justify-center text-error">
+<span class="material-symbols-outlined" style="font-size: 16px;">error_outline</span>
+</div>
+<span class="font-body-md text-body-md font-semibold">TRX-98235-BETA</span>
+</div>
+</td>
+<td class="p-6 font-data-display text-data-display text-on-surface-variant">24 Feb, 2024</td>
+<td class="p-6 font-data-display text-data-display text-right font-bold text-on-surface">$3,120.45</td>
+<td class="p-6 font-body-md text-body-md text-on-surface-variant">Bank of America</td>
+<td class="p-6">
+<span class="px-3 py-1 rounded-full bg-error-container/20 text-error text-label-sm font-bold">DISCREPANCIA</span>
+</td>
+<td class="p-6 text-right">
+<button class="opacity-0 group-hover:opacity-100 transition-opacity text-outline hover:text-primary">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-white/20 transition-colors group">
+<td class="p-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-outline">
+<span class="material-symbols-outlined" style="font-size: 16px;">hourglass_empty</span>
+</div>
+<span class="font-body-md text-body-md font-semibold">TRX-98236-GAMA</span>
+</div>
+</td>
+<td class="p-6 font-data-display text-data-display text-on-surface-variant">23 Feb, 2024</td>
+<td class="p-6 font-data-display text-data-display text-right font-bold text-on-surface">$850.00</td>
+<td class="p-6 font-body-md text-body-md text-on-surface-variant">Wells Fargo</td>
+<td class="p-6">
+<span class="px-3 py-1 rounded-full bg-surface-variant text-outline text-label-sm font-bold">PENDIENTE</span>
+</td>
+<td class="p-6 text-right">
+<button class="opacity-0 group-hover:opacity-100 transition-opacity text-outline hover:text-primary">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-white/20 transition-colors group">
+<td class="p-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-size: 16px;">receipt_long</span>
+</div>
+<span class="font-body-md text-body-md font-semibold">TRX-98237-ZETA</span>
+</div>
+</td>
+<td class="p-6 font-data-display text-data-display text-on-surface-variant">23 Feb, 2024</td>
+<td class="p-6 font-data-display text-data-display text-right font-bold text-on-surface">$50,000.00</td>
+<td class="p-6 font-body-md text-body-md text-on-surface-variant">Citibank N.A.</td>
+<td class="p-6">
+<span class="px-3 py-1 rounded-full bg-secondary-container/20 text-secondary text-label-sm font-bold">CONCILIADO</span>
+</td>
+<td class="p-6 text-right">
+<button class="opacity-0 group-hover:opacity-100 transition-opacity text-outline hover:text-primary">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="mt-6 flex items-center justify-between">
+<p class="text-label-sm font-label-sm text-outline">Mostrando 4 de 1,245 registros</p>
+<div class="flex gap-2">
+<button class="w-10 h-10 flex items-center justify-center glass-card rounded-lg text-outline hover:text-primary transition-colors disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center glass-card rounded-lg text-primary font-bold">1</button>
+<button class="w-10 h-10 flex items-center justify-center glass-card rounded-lg text-on-surface-variant hover:bg-white/60 transition-colors">2</button>
+<button class="w-10 h-10 flex items-center justify-center glass-card rounded-lg text-on-surface-variant hover:bg-white/60 transition-colors">3</button>
+<button class="w-10 h-10 flex items-center justify-center glass-card rounded-lg text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<script>
+        // Micro-interaction for dashboard scale effect
+        document.querySelectorAll('.glass-card').forEach(card => {
+            card.addEventListener('mousedown', () => {
+                card.style.transform = 'scale(0.98)';
+                card.style.transition = 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            });
+            card.addEventListener('mouseup', () => {
+                card.style.transform = 'scale(1)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'scale(1)';
+            });
+        });
+
+        // Atmospheric parallax effect on background
+        window.addEventListener('mousemove', (e) => {
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            document.body.style.backgroundPosition = `${x * 20}px ${y * 20}px`;
+        });
+    </script>
+</body></html>

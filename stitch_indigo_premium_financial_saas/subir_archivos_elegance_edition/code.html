@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Arctic Ledger | Carga de Archivos</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#cbe6fa",
+                        "surface-dim": "#d4dbe3",
+                        "on-secondary-container": "#003c6f",
+                        "surface-container": "#e8eef7",
+                        "secondary": "#0060aa",
+                        "on-primary-fixed": "#001e31",
+                        "primary": "#006496",
+                        "secondary-container": "#62a9fd",
+                        "error": "#ba1a1a",
+                        "surface-container-highest": "#dce3ec",
+                        "surface-container-low": "#eef4fd",
+                        "on-secondary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed-variant": "#004b72",
+                        "on-primary-container": "#004e76",
+                        "on-tertiary-fixed": "#011e2d",
+                        "error-container": "#ffdad6",
+                        "inverse-surface": "#2a3138",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-container-high": "#e2e9f1",
+                        "on-secondary-fixed": "#001c39",
+                        "on-background": "#151c22",
+                        "outline": "#707880",
+                        "primary-fixed-dim": "#91cdff",
+                        "secondary-fixed": "#d3e3ff",
+                        "on-surface": "#151c22",
+                        "on-surface-variant": "#40484f",
+                        "tertiary": "#486272",
+                        "inverse-primary": "#91cdff",
+                        "surface-bright": "#f6f9ff",
+                        "inverse-on-surface": "#ebf1fa",
+                        "outline-variant": "#c0c7d1",
+                        "surface": "#f6f9ff",
+                        "primary-container": "#74c0fc",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed-dim": "#a3c9ff",
+                        "tertiary-fixed-dim": "#afcadd",
+                        "on-tertiary-fixed-variant": "#304a5a",
+                        "surface-tint": "#006496",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-container": "#334d5d",
+                        "primary-fixed": "#cce5ff",
+                        "on-secondary-fixed-variant": "#004882",
+                        "background": "#f6f9ff",
+                        "tertiary-container": "#a2bdd0",
+                        "surface-variant": "#dce3ec"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "base": "8px",
+                        "section-gap": "80px",
+                        "container-padding": "32px"
+                    },
+                    "fontFamily": {
+                        "headline-xl": ["Outfit"],
+                        "label-sm": ["Outfit"],
+                        "headline-md": ["Outfit"],
+                        "headline-lg": ["Outfit"],
+                        "body-lg": ["Outfit"],
+                        "data-display": ["Outfit"],
+                        "body-md": ["Outfit"]
+                    },
+                    "fontSize": {
+                        "headline-xl": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.03em", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400"}],
+                        "data-display": ["16px", {"lineHeight": "1", "letterSpacing": "0", "fontWeight": "500"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #f6f9ff 0%, #e8eef7 100%);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .drop-zone-active {
+            background: rgba(116, 192, 252, 0.1);
+            border-color: #006496 !important;
+        }
+        .progress-shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+    </style>
+</head>
+<body class="text-on-background">
+<!-- SideNavBar (Floating Shell) -->
+<aside class="fixed left-4 top-4 bottom-4 w-64 rounded-xl border border-white/20 dark:border-white/10 bg-white/40 dark:bg-surface-container/40 backdrop-blur-[30px] shadow-[0_40px_40px_-15px_rgba(0,100,150,0.04)] flex flex-col p-6 gap-y-4 z-50">
+<div class="mb-8">
+<h1 class="text-headline-md font-headline-md font-bold text-primary dark:text-primary-fixed-dim tracking-tight">Arctic Ledger</h1>
+<p class="font-body-md text-body-md text-on-surface-variant/70 uppercase tracking-widest text-[10px] mt-1">Premium SaaS</p>
+</div>
+<nav class="flex flex-col gap-y-2">
+<a class="flex items-center gap-3 p-3 rounded-lg text-on-surface-variant/70 hover:bg-white/20 hover:text-primary transition-all duration-300 scale-[0.98] active:scale-95" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 p-3 rounded-lg text-on-surface-variant/70 hover:bg-white/20 hover:text-primary transition-all duration-300 scale-[0.98] active:scale-95" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="font-body-md text-body-md">Reconciliation</span>
+</a>
+<!-- Active Tab: File Upload -->
+<a class="flex items-center gap-3 p-3 rounded-lg text-primary dark:text-primary-fixed-dim font-bold bg-white/20 transition-all duration-300 scale-[0.98] active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">upload_file</span>
+<span class="font-body-md text-body-md">File Upload</span>
+</a>
+<a class="flex items-center gap-3 p-3 rounded-lg text-on-surface-variant/70 hover:bg-white/20 hover:text-primary transition-all duration-300 scale-[0.98] active:scale-95" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-body-md text-body-md">History</span>
+</a>
+<a class="flex items-center gap-3 p-3 rounded-lg text-on-surface-variant/70 hover:bg-white/20 hover:text-primary transition-all duration-300 scale-[0.98] active:scale-95" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+</nav>
+<div class="mt-auto">
+<button class="w-full py-4 bg-primary text-on-primary rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg hover:brightness-110 transition-all active:scale-95">
+<span class="material-symbols-outlined">add</span>
+<span>New Match</span>
+</button>
+</div>
+</aside>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-72 h-20 bg-white/40 dark:bg-surface-container/40 backdrop-blur-[20px] flex items-center justify-between px-gutter w-full max-w-full z-40">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Central de Datos</span>
+<h2 class="font-headline-md text-headline-md text-primary">Carga de Documentos</h2>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative group">
+<input class="bg-white/30 border border-white/40 rounded-full px-6 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-body-md" placeholder="Buscar registros..." type="text"/>
+<span class="material-symbols-outlined absolute right-4 top-2 text-on-surface-variant">search</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white/60 shadow-sm">
+<img alt="Administrator Profile" data-alt="Professional portrait of a financial administrator in a bright modern office setting. The person is wearing a sharp navy suit and looking confidently at the camera. The lighting is soft and airy, matching a premium high-end light mode interface aesthetic with cool blue and white tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMzdnwK48Ik13Oejb1v7LbuQWwWJByfKryjlj8-7u57Xk6h4l7nsGXO-3n3NAGdvW8uvsPRJdK8K5tFWn4LRE9s1FzW3B94OrHBMRX78rq_q8URwmieVhDs_6VcePTPMVdOEC5eCcBgJZJqMTb8eBDnpO1SYEptaFBLT_TITtOwnT0wlVfiNyNxfpx2qxKf0Qe3VheOYpvHfLvActHiGYgITICL8XwKiVZVbljdwpNzpmucRjKcRVuwSqxxAJVRIzg7iN1fCx1QPDs"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pl-72 pt-24 pr-gutter pb- gutter max-w-[1400px] mx-auto min-h-screen">
+<div class="mt-8 space-y-10">
+<!-- Header Section -->
+<div class="flex justify-between items-end">
+<div class="max-w-2xl">
+<h3 class="font-headline-lg text-headline-lg text-on-surface">Importar Libros Contables</h3>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-2">Cargue los extractos bancarios y los registros del ERP para iniciar el proceso de conciliación inteligente mediante IA.</p>
+</div>
+<div class="flex gap-3">
+<span class="px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-label-sm font-label-sm uppercase flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">info</span>
+                        Formatos: CSV, XLSX
+                    </span>
+</div>
+</div>
+<!-- Upload Bento Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<!-- Zone 1: Bank Statement -->
+<div class="glass-card p-10 rounded-[32px] flex flex-col items-center justify-center text-center group cursor-pointer border-dashed border-2 border-primary/20 hover:border-primary/50 transition-all duration-500 min-h-[400px]">
+<div class="w-20 h-20 bg-primary-container rounded-[24px] flex items-center justify-center text-primary mb-6 transition-transform group-hover:scale-110 group-hover:rotate-3">
+<span class="material-symbols-outlined text-4xl">account_balance</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface">Extracto Bancario</h4>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2 mb-8 max-w-[280px]">Arrastre su archivo bancario mensual o haga clic para explorar.</p>
+<div class="flex flex-wrap justify-center gap-2">
+<span class="px-3 py-1 bg-white/40 border border-white/60 rounded-full text-[12px] font-medium text-primary">Santander_Q3.csv</span>
+<span class="material-symbols-outlined text-error text-[18px] cursor-pointer hover:scale-110">cancel</span>
+</div>
+<input class="hidden" type="file"/>
+</div>
+<!-- Zone 2: ERP Ledger -->
+<div class="glass-card p-10 rounded-[32px] flex flex-col items-center justify-center text-center group cursor-pointer border-dashed border-2 border-primary/20 hover:border-primary/50 transition-all duration-500 min-h-[400px]">
+<div class="w-20 h-20 bg-secondary-container rounded-[24px] flex items-center justify-center text-secondary mb-6 transition-transform group-hover:scale-110 group-hover:-rotate-3">
+<span class="material-symbols-outlined text-4xl">menu_book</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface">Libro Mayor ERP</h4>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2 mb-8 max-w-[280px]">Suba el reporte de su software contable (SAP, Oracle, NetSuite).</p>
+<button class="px-6 py-2 border border-primary text-primary rounded-full font-bold hover:bg-primary hover:text-on-primary transition-all">Seleccionar Archivo</button>
+<input class="hidden" type="file"/>
+</div>
+</div>
+<!-- Progress & CTA Section -->
+<div class="glass-card p-8 rounded-[32px] mt-12 flex flex-col md:flex-row items-center justify-between gap-8">
+<div class="w-full md:w-1/2">
+<div class="flex justify-between mb-2">
+<span class="text-label-sm font-label-sm uppercase text-on-surface-variant">Estado de Carga</span>
+<span class="text-label-sm font-label-sm uppercase text-primary font-bold">75% Completado</span>
+</div>
+<div class="h-3 w-full bg-surface-container-highest rounded-full overflow-hidden relative">
+<div class="h-full bg-primary rounded-full w-3/4 transition-all duration-1000 relative">
+<div class="absolute inset-0 progress-shimmer"></div>
+</div>
+</div>
+<p class="text-[12px] text-on-surface-variant mt-2 italic">Procesando metadatos de Arctic_Santander_Export.csv...</p>
+</div>
+<div class="flex items-center gap-4">
+<button class="px-8 py-5 bg-secondary text-on-secondary rounded-2xl font-bold text-lg flex items-center gap-3 shadow-[0_20px_40px_-10px_rgba(0,96,170,0.3)] hover:scale-[1.02] hover:brightness-110 transition-all active:scale-95 group">
+<span>Procesar y Conciliar</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Footer Hints -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 pb-20">
+<div class="flex items-start gap-4 p-4">
+<span class="material-symbols-outlined text-primary bg-primary-container/30 p-2 rounded-lg">security</span>
+<div>
+<p class="font-bold text-on-surface">Encriptación de Grado Bancario</p>
+<p class="text-sm text-on-surface-variant">Tus datos están protegidos con AES-256 en reposo.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-4">
+<span class="material-symbols-outlined text-primary bg-primary-container/30 p-2 rounded-lg">bolt</span>
+<div>
+<p class="font-bold text-on-surface">Detección de Duplicados</p>
+<p class="text-sm text-on-surface-variant">La IA filtrará automáticamente entradas repetidas.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-4">
+<span class="material-symbols-outlined text-primary bg-primary-container/30 p-2 rounded-lg">verified</span>
+<div>
+<p class="font-bold text-on-surface">Validación de Esquema</p>
+<p class="text-sm text-on-surface-variant">Verificamos la estructura antes de procesar.</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Simple micro-interaction for drag and drop
+        const dropZones = document.querySelectorAll('.glass-card.group');
+        
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('drop-zone-active');
+            });
+
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('drop-zone-active');
+            });
+
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('drop-zone-active');
+                // Subtle feedback animation
+                zone.animate([
+                    { transform: 'scale(1)' },
+                    { transform: 'scale(1.02)' },
+                    { transform: 'scale(1)' }
+                ], { duration: 300 });
+            });
+        });
+    </script>
+</body></html>

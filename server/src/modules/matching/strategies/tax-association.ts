@@ -22,7 +22,13 @@ export class TaxAssociationStrategy implements MatchStrategy {
       (m) => m.tipo === 'CREDITO' && m.categoria === 'COBRANZA'
     );
     const impuestos = extractoMovs.filter(
-      (m) => m.tipo === 'DEBITO' && m.categoria === 'IMPUESTO' && m.match_type === 'UNMATCHED'
+      (m) => {
+        if (m.tipo !== 'DEBITO' || m.categoria !== 'IMPUESTO' || m.match_type !== 'UNMATCHED') return false;
+        const d = m.descripcion.toUpperCase();
+        // El IVA y Percepción de IVA son sobre comisiones, no sobre créditos.
+        if (/\bIVA\b/.test(d) || /PERCEP\.?\s*IVA/.test(d)) return false;
+        return true;
+      }
     );
 
     const usedImpuestos = new Set<string>();

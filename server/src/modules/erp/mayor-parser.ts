@@ -88,23 +88,32 @@ export class MayorParser implements ERPParser {
    * Parsea el CSV del Libro Mayor.
    * Delimitador: ; | Columnas: FECHA;DOCUMENTO;ORGANIZACION;...;DEBEMONPRINCIPAL;HABERMONPRINCIPAL;SALDOMONPRINCIPAL
    */
-  parseCSV(content: string): ParseResult<RawMayorMovement> {
-    const lines = content.trim().split('\n');
-    if (lines.length < 2) return { movimientos: [] };
-
-    const headers = lines[0].toLowerCase();
-    if (!headers.includes('documento') || !headers.includes('organizacion') || !headers.includes('debemonprincipal')) {
-      throw new Error('El archivo no parece ser un Libro Mayor válido en formato CSV.');
-    }
+  async parseCSV(stream: import('stream').Readable, encoding: BufferEncoding): Promise<ParseResult<RawMayorMovement>> {
+    const readline = require('readline');
+    const rl = readline.createInterface({
+      input: stream,
+      crlfDelay: Infinity
+    });
 
     const result: RawMayorMovement[] = [];
     let saldoInicial: number | undefined;
+    let headerFound = false;
 
-    for (let i = 1; i < lines.length; i++) {
-      const values = this.parseLine(lines[i]);
+    for await (const line of rl) {
+      const cleanLine = line.replace(/^\uFEFF/, '').replace(/\r/g, '');
+      if (cleanLine.trim() === '') continue;
+
+      if (!headerFound) {
+        const headers = cleanLine.toLowerCase();
+        if (headers.includes('documento') && headers.includes('organizacion') && (headers.includes('debemonprincipal') || headers.includes('debe'))) {
+          headerFound = true;
+        }
+        continue;
+      }
+
+      const values = this.parseLine(cleanLine);
       if (values.length < 9) continue;
 
-      // Extraer y saltar el saldo inicial
       if (values[1] === 'Saldo Inicial') {
         if (values[8]) saldoInicial = parseMontoERP(values[8]);
         continue;
@@ -121,6 +130,10 @@ export class MayorParser implements ERPParser {
         HABERMONPRINCIPAL: values[7] || '',
         SALDOMONPRINCIPAL: values[8] || '',
       });
+    }
+
+    if (!headerFound) {
+      throw new Error('El archivo no parece ser un Libro Mayor válido en formato CSV.');
     }
 
     let saldoFinal: number | undefined;

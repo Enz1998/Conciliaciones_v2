@@ -115,7 +115,7 @@ export class MercadoPagoExtractoParser implements BankParser {
    * parseCSV no aplica a MercadoPago (usa XLSX), pero se implementa
    * para cumplir con compatibilidad hacia atrás si el engine lo llama.
    */
-  parseCSV(_content: string): ParseResult<RawMPExtractoMovement> {
+  async parseCSV(_stream: import('stream').Readable, _encoding: BufferEncoding): Promise<ParseResult<RawMPExtractoMovement>> {
     return { movimientos: [] };
   }
 }
