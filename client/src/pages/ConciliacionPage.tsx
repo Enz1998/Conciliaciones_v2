@@ -4,6 +4,7 @@ import { NormalizedMovement, MatchResult, ConciliacionSummary } from '../types';
 import { MovementRow } from '../components/MovementRow';
 import { MatchedPairTable } from '../components/MatchedPairCard';
 import { ErpSummaryPanel } from '../components/ErpSummaryPanel';
+import { SameAmountModal } from '../components/SameAmountModal';
 import { ConfirmModal, AlertModal } from '../components/ui/Modal';
 import { EmptyState } from '../components/ui/EmptyState';
 import { SkeletonMovementRow } from '../components/ui/Skeleton';
@@ -38,6 +39,7 @@ export function ConciliacionPage({ id, onBack }: Props) {
   const [summaryFilterSide, setSummaryFilterSide] = useState<'ALL' | 'EXT' | 'MAY'>('ALL');
   const [isPendingListOpen, setIsPendingListOpen] = useState(false);
   const [isCedulaOpen, setIsCedulaOpen] = useState(false);
+  const [sameAmountTarget, setSameAmountTarget] = useState<NormalizedMovement | null>(null);
 
   const [isEditingSaldos, setIsEditingSaldos] = useState(false);
   const [editSaldos, setEditSaldos] = useState({ saldo_inicial_extracto: '', saldo_final_extracto: '', saldo_inicial_mayor: '', saldo_final_mayor: '' });
@@ -436,6 +438,8 @@ export function ConciliacionPage({ id, onBack }: Props) {
         title="Re-ejecutar auto-match" message="Se perderán los matches automáticos actuales. Los manuales se conservan." confirmLabel="Re-ejecutar" confirmVariant="danger" />
       <ConfirmModal isOpen={!!showUnmatchConfirm} onClose={() => setShowUnmatchConfirm(null)} onConfirm={() => showUnmatchConfirm && handleUnmatch(showUnmatchConfirm)}
         title="Deshacer match" message="Los movimientos volverán a quedar pendientes." confirmLabel="Deshacer" confirmVariant="danger" />
+      <SameAmountModal target={sameAmountTarget} extractoMovs={data.extractoMovs || []} mayorMovs={data.mayorMovs || []} pairs={matchedPairs}
+        onClose={() => setSameAmountTarget(null)} onUnmatch={(mid) => setShowUnmatchConfirm(mid)} formatMonto={formatMonto} formatFecha={formatFecha} />
       {alertMsg && <AlertModal isOpen={!!alertMsg} onClose={() => setAlertMsg(null)} title={alertMsg.title} message={alertMsg.message} />}
 
       <div className="flex flex-col h-[calc(100vh-130px)] relative">
@@ -580,6 +584,7 @@ export function ConciliacionPage({ id, onBack }: Props) {
                 selected={selected}
                 onToggleAll={() => toggleSelectAll(filteredRegularExt)}
                 onToggle={toggleSelect}
+                onShowSameAmount={setSameAmountTarget}
                 formatMonto={formatMonto}
                 formatFecha={formatFecha}
                 total={formatTotal(calcTotal(filteredRegularExt))}
@@ -595,6 +600,7 @@ export function ConciliacionPage({ id, onBack }: Props) {
                 selected={selected}
                 onToggleAll={() => toggleSelectAll(filteredMayUnmatched)}
                 onToggle={toggleSelect}
+                onShowSameAmount={setSameAmountTarget}
                 formatMonto={formatMonto}
                 formatFecha={formatFecha}
                 total={formatTotal(calcTotal(filteredMayUnmatched))}
@@ -691,6 +697,7 @@ export function ConciliacionPage({ id, onBack }: Props) {
                 selected={selected}
                 onToggleAll={() => toggleSelectAll(filteredBankCharges)}
                 onToggle={toggleSelect}
+                onShowSameAmount={setSameAmountTarget}
                 formatMonto={formatMonto}
                 formatFecha={formatFecha}
                 total={formatTotal(calcTotal(filteredBankCharges))}
@@ -707,6 +714,7 @@ export function ConciliacionPage({ id, onBack }: Props) {
                 selected={selected}
                 onToggleAll={() => toggleSelectAll(filteredMayUnmatched)}
                 onToggle={toggleSelect}
+                onShowSameAmount={setSameAmountTarget}
                 formatMonto={formatMonto}
                 formatFecha={formatFecha}
                 total={formatTotal(calcTotal(filteredMayUnmatched))}
@@ -1611,7 +1619,7 @@ export function ConciliacionPage({ id, onBack }: Props) {
 }
 
 /* ── Sub-components ── */
-function PanelTable({ title, count, movs, side, search, onSearch, selected, onToggleAll, onToggle, formatMonto, formatFecha, total, inputCls, className }: any) {
+function PanelTable({ title, count, movs, side, search, onSearch, selected, onToggleAll, onToggle, onShowSameAmount, formatMonto, formatFecha, total, inputCls, className }: any) {
   const allSel = movs.length > 0 && movs.every((m: any) => selected.has(m.id));
   return (
     <div className={`flex-1 flex flex-col min-h-[360px] bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden ${className || ''}`}>
@@ -1648,7 +1656,7 @@ function PanelTable({ title, count, movs, side, search, onSearch, selected, onTo
       <div className="flex-1 min-h-[220px] overflow-y-auto scrollbar-thin">
         {movs.length === 0
           ? <EmptyState icon={search ? 'search_off' : 'check_circle'} title={search ? 'Sin resultados' : 'Todo conciliado'} />
-          : <table className="w-full"><tbody>{movs.map((m: NormalizedMovement) => <MovementRow key={m.id} m={m} side={side} selected={selected.has(m.id)} onToggle={onToggle} formatMonto={formatMonto} formatFecha={formatFecha} />)}</tbody></table>
+          : <table className="w-full"><tbody>{movs.map((m: NormalizedMovement) => <MovementRow key={m.id} m={m} side={side} selected={selected.has(m.id)} onToggle={onToggle} onShowSameAmount={onShowSameAmount} formatMonto={formatMonto} formatFecha={formatFecha} />)}</tbody></table>
         }
       </div>
       <div className="px-4 py-2 border-t border-slate-100 flex justify-between items-center shrink-0 bg-slate-50/50">
