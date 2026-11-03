@@ -6,11 +6,12 @@ interface MovementRowProps {
   side: 'EXT' | 'MAY';
   selected: boolean;
   onToggle: (id: string) => void;
+  onShowSameAmount?: (m: NormalizedMovement) => void;
   formatMonto: (n: number) => string;
   formatFecha: (s: string) => string;
 }
 
-export function MovementRow({ m, side, selected, onToggle, formatMonto, formatFecha }: MovementRowProps) {
+export function MovementRow({ m, side, selected, onToggle, onShowSameAmount, formatMonto, formatFecha }: MovementRowProps) {
   const isCredit = m.tipo === 'CREDITO';
 
   return (
@@ -49,6 +50,15 @@ export function MovementRow({ m, side, selected, onToggle, formatMonto, formatFe
         <span className={`font-mono-num text-[12px] tracking-tight font-semibold ${isCredit ? 'text-emerald-800' : 'text-slate-950'}`}>
           {isCredit ? '+' : '−'} {formatMonto(m.monto)}
         </span>
+        {onShowSameAmount && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onShowSameAmount(m); }}
+            className="block ml-auto mt-0.5 opacity-0 group-hover:opacity-100 text-[10.5px] font-bold text-indigo-700 hover:text-indigo-900 transition-opacity"
+            title="Ver todos los movimientos con este monto, incluidos los conciliados"
+          >
+            Mismo monto
+          </button>
+        )}
       </td>
 
       {/* Tipo */}

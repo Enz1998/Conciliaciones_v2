@@ -28,8 +28,12 @@ Ambos archivos (extracto bancario y libro mayor) se normalizan a una estructura 
 **Condiciones:**
 1. `monto` **idéntico** entre extracto y mayor
 2. `tipo` **coincidente** (CREDITO con CREDITO, DEBITO con DEBITO)
-3. `fecha` con tolerancia de **±1 día hábil**
-4. `contraparte` con **fuzzy match ≥ 80%** (Levenshtein o Jaro-Winkler)
+3. `fecha` con tolerancia de **±5 días**
+
+**Desempate entre varios movimientos del mismo monto** (pasadas en orden; en cada una se elige la fecha más cercana):
+1. Comparten un **número de comprobante** (ej: `Q90000110` ↔ `Cheque N° 90000110`)
+2. Misma **contraparte** (≥ 60% de las palabras del nombre más corto, ignorando SA/SRL, tolerando abreviaturas)
+3. Solo monto + fecha. Dos cheques con números distintos nunca se matchean entre sí.
 
 **Aplica a:**
 - Cobranzas: `Cobranza Auto` (ERP) ↔ `TRANSFERENCIA DE TERCEROS` / `CREDITO TRANSFERENCIA COELSA` / `TRANSFERENCIAS CASH PROVEEDORES` / `SERVICIO PAGO A PROVEEDORES` (Banco)
